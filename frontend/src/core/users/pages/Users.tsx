@@ -4,7 +4,7 @@ import api from '@services/api';
 import StatsCard from '@core/users/components/StatsCard';
 import UserCard from '@core/users/components/UserCard';
 
-const Home: React.FC = () => {
+const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [stats, setStats] = useState<any>(null);
 
@@ -17,7 +17,7 @@ const Home: React.FC = () => {
       
       try {
         const [usersResponse, statsResponse] = await Promise.all([
-          api.get('/api/users'),
+          api.get('/api/users', { data: { page_size: 50 } }),
           api.get('/api/stats')
         ]);
         setUsers(usersResponse.data.users);
@@ -67,11 +67,11 @@ const Home: React.FC = () => {
 
       <div className="row mt-4">
         {users.map(user => (
-          <UserCard user={user} />
+          <UserCard user={user} key={user.id} />
         ))}
       </div>
     </div>
   );
 };
 
-export default Home;
+export default Users;

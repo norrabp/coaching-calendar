@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface IStats {
     total_users: number;
     active_users: number;

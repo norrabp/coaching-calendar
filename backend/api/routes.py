@@ -60,14 +60,11 @@ def trigger_test_task():
 @api_bp.route('/users', methods=['GET'])
 @jwt_required()
 def get_users():
-    users, has_next_page = User.get_list()
-    return jsonify({'users': [{
-            'id': user.id,
-            'username': user.username,
-            'email': user.email
-        } for user in users],
+    users, has_next_page = User.get_list_and_paginate()
+    return jsonify({'users': [user.to_dict() for user in users],
         'has_next_page': has_next_page
     })
+
 
 @api_bp.route('/stats', methods=['GET'])
 @jwt_required()

@@ -19,6 +19,7 @@
       "@services/*": ["services/*"],
       "@core/*": ["core/*"],
       "@components/*": ["components/*"],
+      "@util/*": ["util/*"]
     }
   },
   "include": ["src"],

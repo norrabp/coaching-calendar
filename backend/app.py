@@ -3,6 +3,7 @@ from flask_migrate import Migrate
 from backend.extensions.extensions import db, jwt, cors, celery
 from backend.config.environment import CONFIG, ENVIRONMENT, Environment
 from backend.auth.models import User
+from backend.auth.constants import UserRole
 import logging
 import os
 
@@ -75,15 +76,15 @@ def create_app(config_class=CONFIG):
             db.create_all()
             if ENVIRONMENT == Environment.DEVELOPMENT:
                 # Create test user if it doesn't exist
-                test_user = User.query.filter_by(email='test@example.com').first()
-                if not test_user:
-                    test_user = User(username='testuser', email='test@example.com')
-                    test_user.set_password('TestUser@2024Secure!')
-                    db.session.add(test_user)
+                root_user = User.query.filter_by(role=UserRole.ROOT).first()
+                if not root_user:
+                    root_user = User(username='root', email='root@example.com', phone_number='1234567890', role=UserRole.ROOT)
+                    root_user.set_password('Root@2024Secure!')
+                    db.session.add(root_user)
                     db.session.commit()
-                    app.logger.info('Test user created successfully')
+                    app.logger.info('Root user created successfully')
                 else:
-                    app.logger.info('Test user already exists')
+                    app.logger.info('Root user already exists')
         except Exception as e:
             app.logger.error(f'Database initialization error: {str(e)}')
             db.session.rollback()  # Rollback on error

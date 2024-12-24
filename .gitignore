@@ -1,0 +1,11 @@
+.local
+.cache
+.git
+.vscode
+.env
+.venv
+.DS_Store
+node_modules
+Dockerfile
+docker-compose.yml
+*.pyc

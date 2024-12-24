@@ -3,7 +3,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "flask-postgres-celery-boilerplate"
+name = "coaching-calendar"
 version = "0.1.0"
 description = "Full-stack web application boilerplate with Flask, React, PostgreSQL, Redis, and Celery"
 authors = ["Your Name <your.email@example.com>"]

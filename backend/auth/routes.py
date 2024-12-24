@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from backend.auth.models import User
+from backend.auth.queries import create_user_query, get_user_by_email_query, get_user_by_username_query, get_user_by_id_query
 from backend.app import db
 import logging
 from pydantic import ValidationError
@@ -17,18 +17,18 @@ def register():
     except ValidationError as e:
         return jsonify({'error': str(e)}), 400
     
-    if User.query.filter_by(username=data.username).first():
+    if get_user_by_username_query(data.username):
         return jsonify({'error': 'Username already registered'}), 400
 
-    if User.query.filter_by(email=data.email).first():
+    if get_user_by_email_query(data.email):
         return jsonify({'error': 'Email already registered'}), 400
         
-    user = User(
-        username=data.username,
-        email=data.email
-    )
-    user.set_password(data.password)
-    user.create()
+    try:
+        create_user_query(data.username, data.email, data.phone_number, data.role, data.password)   
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
     
     return jsonify({'message': 'User created successfully'}), 201
 
@@ -41,7 +41,7 @@ def login():
     
     logger.info(f"Login attempt for email: {data.email}")
 
-    user = User.query.filter_by(email=data.email).first()
+    user = get_user_by_email_query(data.email)
     
     if not user or not user.check_password(data.password):
         return jsonify({'error': 'Invalid credentials'}), 401
@@ -58,7 +58,7 @@ def login():
 @jwt_required()
 def get_user():
     user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    user = get_user_by_id_query(user_id)
     return jsonify({
         'id': user.id,
         'username': user.username,

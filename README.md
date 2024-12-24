@@ -9,9 +9,25 @@
 ### Quick Start
 
 1. Clone the repository
-2. Run the application:
+2. Create virtual environment
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+3. Install dependencies
+```bash
+pip install poetry
+poetry install --no-root
+```
+4. Run the backend:
 ```bash
 docker-compose up --build
+```
+5. Run the frontend:
+```bash
+cd frontend
+npm install
+npx vite
 ```
 
 The application will be available at:
@@ -33,64 +49,8 @@ The application will be available at:
 - Node.js 20+
 - Poetry (Python package manager)
 
-### 1. Clone and Install Dependencies
 
-```bash
-# Install Python dependencies using Poetry
-poetry install
-
-# Install Node.js dependencies
-cd frontend
-npm install
-```
-
-### 2. Environment Setup
-
-Create a `.env` file in the root directory with the following variables:
-```
-# PostgreSQL
-DATABASE_URL=postgresql://postgres:password@localhost:5432/your_database_name
-
-# Redis
-REDIS_URL=redis://localhost:6379/0
-
-# Flask
-FLASK_SECRET_KEY=your-secret-key
-JWT_SECRET_KEY=your-jwt-secret
-```
-
-### 3. Database Setup
-```bash
-# Create database and run migrations
-poetry run flask db upgrade
-```
-
-### 4. Running the Application
-
-Start each service in a separate terminal:
-
-#### Backend Server
-```bash
-# Start Flask backend
-poetry run python run.py
-```
-
-#### Frontend Development Server
-```bash
-# From the frontend directory
-npm run dev
-```
-
-#### Celery Worker
-```bash
-# From the root directory
-poetry run celery -A backend.celery_worker.celery worker --loglevel=info
-```
-
-#### Redis Server
-Make sure Redis is running on the default port (6379)
-
-### 5. Access the Application
+### Access the Application
 - Frontend: http://localhost:5000
 - Backend API: http://localhost:8000
 
@@ -110,8 +70,6 @@ Password: TestUser@2024Secure!
 ## Development
 - Frontend code is in the `frontend` directory
 - Backend code is in the `backend` directory
-- API routes are in `backend/api/routes.py`
-- Authentication routes are in `backend/auth.py`
 
 ## Docker Development Commands
 

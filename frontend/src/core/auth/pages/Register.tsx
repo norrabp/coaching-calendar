@@ -7,7 +7,8 @@ const Register: React.FC = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
-    password: ''
+    password: '',
+    phone_number: ''  // Added phone number field
   });
   const [error, setError] = useState('');
 
@@ -50,6 +51,18 @@ const Register: React.FC = () => {
                   className="form-control"
                   value={formData.email}
                   onChange={e => setFormData({...formData, email: e.target.value})}
+                  required
+                />
+              </div>
+              {/* Add phone number field */}
+              <div className="mb-3">
+                <label className="form-label">Phone Number</label>
+                <input
+                  type="tel"
+                  className="form-control"
+                  value={formData.phone_number}
+                  onChange={e => setFormData({...formData, phone_number: e.target.value})}
+                  placeholder="+1234567890"
                   required
                 />
               </div>

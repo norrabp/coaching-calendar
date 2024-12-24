@@ -8,7 +8,8 @@ export default defineConfig({
     alias: {
       '@services': path.resolve(__dirname, './src/services'),
       '@core': path.resolve(__dirname, './src/core'),
-      '@components': path.resolve(__dirname, './src/components')
+      '@components': path.resolve(__dirname, './src/components'),
+      '@util': path.resolve(__dirname, './src/util')
     }
   },
   server: {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from '@components/Layout';
-import Home from '@core/users/pages/Home';
+import Users from '@core/users/pages/Users';
 import Login from '@core/auth/pages/Login';
 import Register from '@core/auth/pages/Register';
 
@@ -10,7 +10,7 @@ const App: React.FC = () => {
     <Router>
       <Layout>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Users />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>

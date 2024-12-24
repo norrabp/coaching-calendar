@@ -1,13 +1,13 @@
-
-
 from pydantic import BaseModel, field_validator
 import re
-
+from backend.auth.constants import UserRole
 
 class RegisterRequest(BaseModel):
     username: str
     email: str
     password: str
+    phone_number: str
+    role: UserRole = UserRole.STUDENT
 
     @field_validator('email')
     def validate_email(cls, v):
