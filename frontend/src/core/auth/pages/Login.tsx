@@ -1,4 +1,5 @@
 import React, { useState, FormEvent } from 'react';
+import { User, UserRole } from '@core/users/types/user';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '@services/api';
 
@@ -48,7 +49,19 @@ const Login: React.FC = () => {
         console.log('Testing token with users endpoint');
         const testResponse = await api.get('/api/users');
         console.log('Test API call successful:', testResponse.data);
-        navigate('/', { replace: true });
+        switch (user.role as UserRole) {
+          case 'STUDENT':
+            navigate('/student', { replace: true });
+            break;
+          case 'COACH':
+            navigate('/coach', { replace: true });
+            break;
+          case 'ROOT':
+            navigate('/', { replace: true });
+            break;
+          default:
+            throw new Error('Invalid user role');
+        }
       } catch (testError: any) {
         console.error('Test API call failed:', testError);
         throw new Error('Token verification failed');

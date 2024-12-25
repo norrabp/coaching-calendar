@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_migrate import Migrate
 from backend.extensions.extensions import db, jwt, cors, celery
 from backend.config.environment import CONFIG, ENVIRONMENT, Environment
@@ -38,13 +38,18 @@ def create_app(config_class=CONFIG):
     # Additional error handlers for JWT
     @jwt.invalid_token_loader
     def invalid_token_callback(error):
-        app.logger.debug(f"Invalid token error: {error}")
-        return {"error": "Invalid token"}, 401
+        return jsonify({
+            'error': 'Invalid token',
+            'message': str(error)
+        }), 401
 
     @jwt.unauthorized_loader
     def unauthorized_callback(error):
-        app.logger.debug(f"Unauthorized error: {error}")
-        return {"error": "No token provided"}, 401
+        app.logger.debug("Unauthorized")
+        return jsonify({
+            'error': 'No token provided',
+            'message': str(error)
+        }), 401
         
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
@@ -58,14 +63,13 @@ def create_app(config_class=CONFIG):
         
     @jwt.user_identity_loader
     def user_identity_lookup(user):
-        return str(user)
+        return user.id if hasattr(user, 'id') else user
 
     @jwt.user_lookup_loader
     def user_lookup_callback(_jwt_header, jwt_data):
         identity = jwt_data["sub"]
         try:
-            user = User.query.filter_by(id=int(identity)).one_or_none()
-            return user
+            return User.query.filter_by(id=identity).one_or_none()
         except (ValueError, TypeError):
             return None
     celery.conf.update(app.config)
@@ -93,10 +97,11 @@ def create_app(config_class=CONFIG):
             app.logger.info('Database tables created')
     
     # Register blueprints
-    from backend.api.routes import api_bp
+    from backend.root.routes import api_bp
     from backend.auth.routes import auth_bp
-    
+    from backend.appointments.routes import appt_bp
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(appt_bp, url_prefix='/appointments')
     
     return app

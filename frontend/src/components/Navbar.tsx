@@ -1,9 +1,11 @@
+import { useUser } from '@context/UserContext';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
+import UserInfo from '@components/UserInfo';
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const isAuthenticated = !!localStorage.getItem('token');
+  const { user } = useUser();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -13,12 +15,16 @@ const Navbar: React.FC = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container">
-        <Link className="navbar-brand" to="/">Flask React App</Link>
+        <Link className="navbar-brand" to="/">Coach App</Link>
+        
         <div className="navbar-nav ms-auto">
           {isAuthenticated ? (
-            <button className="btn btn-outline-light" onClick={handleLogout}>
-              Logout
-            </button>
+            <div className="d-flex align-items-center">
+              <UserInfo user={user} />
+              <button className="btn btn-outline-light me-3" onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
           ) : (
             <Link className="btn btn-outline-light" to="/login">
               Login

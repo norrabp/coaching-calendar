@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from backend.auth.models import User
 from backend.auth.queries import create_user_query, get_user_by_email_query, get_user_by_username_query, get_user_by_id_query
 from backend.app import db
 import logging
@@ -63,4 +64,12 @@ def get_user():
         'id': user.id,
         'username': user.username,
         'email': user.email
+    })
+
+@auth_bp.route('/users', methods=['GET'])
+@jwt_required()
+def get_users():
+    users, has_next_page = User.get_list_and_paginate()
+    return jsonify({'users': [user.to_dict() for user in users],
+        'has_next_page': has_next_page
     })

@@ -19,7 +19,8 @@
       "@services/*": ["services/*"],
       "@core/*": ["core/*"],
       "@components/*": ["components/*"],
-      "@util/*": ["util/*"]
+      "@util/*": ["util/*"],
+      "@context/*": ["context/*"]
     }
   },
   "include": ["src"],

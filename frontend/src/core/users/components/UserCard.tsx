@@ -1,17 +1,17 @@
 import React from 'react';
 import { normalizePhone } from '@util/normalize-phone-number';
 import { toTitleCase } from '@util/string-format';
+import { UserRole } from '../types/user';
 
 interface IUser {
     id: number;
     username: string;
     email: string;
     phone_number: string;
-    role: string;
+    role: UserRole;
 }
 
 const UserCard: React.FC<{user: IUser}> = ({user}) => {
-    console.log(user);
     return (
         <div key={user.id} className="col-md-4 mb-3">
             <div className="card bg-dark">

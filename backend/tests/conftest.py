@@ -1,6 +1,7 @@
 import os
 import pytest
 from backend.app import create_app, db
+from backend.auth.constants import UserRole
 from backend.auth.models import User
 import psycopg2
 import time
@@ -130,21 +131,46 @@ def client(app: Flask) -> FlaskClient:
     return client
 
 @pytest.fixture(scope="function")
-def test_user(app):
+def test_student(app: Flask) -> User:
     user = User(
         username='unittestuser',
-        email='unittesting@example.com'
+        email='unittesting@example.com',
+        phone_number='1234567890',
+        role=UserRole.STUDENT
     )
     user.set_password('TestUser@2024Secure!')
     user.create()
     return user
 
+@pytest.fixture(scope="function")
+def test_coach(app: Flask) -> User:
+    user = User(
+        username='unittestcoach',
+        email='unittestcoach@example.com',
+        phone_number='1234567890',
+        role=UserRole.COACH
+    )
+    user.set_password('TestCoach@2024Secure!')
+    user.create()
+    return user
+
 
 @pytest.fixture(scope="function")
-def auth_headers(client, test_user):
+def student_auth_headers(client: FlaskClient, test_student: User) -> dict:
     response = client.post('/auth/login', json={
         'email': 'unittesting@example.com',
         'password': 'TestUser@2024Secure!'
     })
+    token = response.json['access_token']
+    return {'Authorization': f'Bearer {token}'}
+
+
+@pytest.fixture(scope="function")
+def coach_auth_headers(client: FlaskClient, test_coach: User) -> dict:
+    response = client.post('/auth/login', json={
+        'email': 'unittestcoach@example.com',
+        'password': 'TestCoach@2024Secure!'
+    })
+    print(f"Login response: {response.json}")  # Add this debug line
     token = response.json['access_token']
     return {'Authorization': f'Bearer {token}'}

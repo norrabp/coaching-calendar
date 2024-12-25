@@ -9,7 +9,8 @@ export default defineConfig({
       '@services': path.resolve(__dirname, './src/services'),
       '@core': path.resolve(__dirname, './src/core'),
       '@components': path.resolve(__dirname, './src/components'),
-      '@util': path.resolve(__dirname, './src/util')
+      '@util': path.resolve(__dirname, './src/util'),
+      '@context': path.resolve(__dirname, './src/context')
     }
   },
   server: {
