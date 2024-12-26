@@ -12,7 +12,7 @@ class PaginationInfo(BaseModel):
     offset: int = 0
 
 
-class GetRequest(BaseModel):
+class QueryOpts(BaseModel):
     filter: Optional[FilterInfo] = None
     sort: Optional[SortInfo] = None
     pagination: PaginationInfo = PaginationInfo()

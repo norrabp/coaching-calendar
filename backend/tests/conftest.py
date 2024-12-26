@@ -154,6 +154,18 @@ def test_coach(app: Flask) -> User:
     user.create()
     return user
 
+@pytest.fixture(scope="function")
+def test_root(app: Flask) -> User:
+    user = User(
+        username='unittestroot',
+        email='unittestroot@example.com',
+        phone_number='1234567890',
+        role=UserRole.ROOT
+    )
+    user.set_password('TestRoot@2024Secure!')
+    user.create()
+    return user
+
 
 @pytest.fixture(scope="function")
 def student_auth_headers(client: FlaskClient, test_student: User) -> dict:
@@ -172,5 +184,14 @@ def coach_auth_headers(client: FlaskClient, test_coach: User) -> dict:
         'password': 'TestCoach@2024Secure!'
     })
     print(f"Login response: {response.json}")  # Add this debug line
+    token = response.json['access_token']
+    return {'Authorization': f'Bearer {token}'}
+
+@pytest.fixture(scope="function")
+def root_auth_headers(client: FlaskClient, test_root: User) -> dict:
+    response = client.post('/auth/login', json={
+        'email': 'unittestroot@example.com',
+        'password': 'TestRoot@2024Secure!'
+    })
     token = response.json['access_token']
     return {'Authorization': f'Bearer {token}'}

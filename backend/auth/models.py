@@ -3,7 +3,7 @@ from backend.auth.constants import UserRole
 from werkzeug.security import generate_password_hash, check_password_hash
 from backend.extensions.extensions import db
 from backend.database.db_model import Model
-
+from typing import Optional
 class User(Model):
     __tablename__ = 'users'
     
@@ -13,11 +13,13 @@ class User(Model):
     phone_number = db.Column(db.String(15), nullable=False)
     role = db.Column(db.Enum(UserRole), default=UserRole.STUDENT, nullable=False)
 
-    def __init__(self, username: str, email: str, phone_number: str, role: UserRole):
+    def __init__(self, username: str, email: str, phone_number: str, role: UserRole, password: Optional[str] = None):
         self.username = username
         self.email = email
         self.phone_number = phone_number
         self.role = role
+        if password:
+            self.set_password(password)
     
     def set_password(self, password: str):
         if not password or len(password) < 8:

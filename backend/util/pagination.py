@@ -1,5 +1,5 @@
 from typing import Optional
-from backend.types.get_request import PaginationInfo
+from backend.types.query_opts import PaginationInfo
 
 MAX_PAGE_SIZE = 100
 

@@ -1,3 +1,4 @@
+from typing import List
 from backend.auth.models import User
 from backend.auth.constants import UserRole
 
@@ -15,3 +16,9 @@ def get_user_by_username_query(username: str) -> User:
 
 def get_user_by_id_query(id: int) -> User:
     return User.get_list_query_obj(filter={'id': id}).first()
+
+def get_all_coaches_query() -> List[User]:
+    return User.get_list(filter={'role': UserRole.COACH})
+
+def get_all_students_query() -> List[User]:
+    return User.get_list(filter={'role': UserRole.STUDENT})

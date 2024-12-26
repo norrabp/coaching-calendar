@@ -2,8 +2,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from backend.extensions.extensions import db
 from backend.util.pagination import get_pagination
 from typing import List, Optional
-from backend.types.get_request import FilterInfo, SortInfo, PaginationInfo
-from datetime import datetime
+from backend.types.query_opts import FilterInfo, SortInfo, PaginationInfo
+from datetime import datetime, timezone
 from sqlalchemy.orm import Query
 import uuid
 
@@ -12,27 +12,27 @@ class Model(db.Model):
     __abstract__ = True
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    created_at = db.Column(db.DateTime, default=datetime.now(), nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.now(), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
 
     def delete(self, hard_delete: bool = False):
         if hard_delete:
             db.session.delete(self)
         else:
-            self.deleted_at = datetime.now()
+            self.deleted_at = datetime.now(timezone.utc)
         db.session.commit()
 
     def create(self, commit: bool = True):
-        self.created_at = datetime.now()
-        self.updated_at = datetime.now()
+        self.created_at = datetime.now(timezone.utc)
+        self.updated_at = datetime.now(timezone.utc)
         db.session.add(self)
         if commit:
             db.session.commit()
         return self
     
     def update(self, commit: bool = True):
-        self.updated_at = datetime.now()
+        self.updated_at = datetime.now(timezone.utc)
         if commit:
             db.session.commit()
         return self

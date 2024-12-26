@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import json
 import logging
 from backend.extensions.extensions import redis_client, celery
@@ -13,14 +13,14 @@ def compute_user_stats():
         total_users = User.query.count()
         active_users = User.query.filter_by(deleted_at=None).count()
         recent_users = User.query.filter(
-            User.created_at >= datetime.now() - timedelta(days=7)
+            User.created_at >= datetime.now(timezone.utc) - timedelta(days=7)
         ).count()
         
         stats = {
             "total_users": total_users,
             "active_users": active_users,
             "recent_users": recent_users,
-            "computed_at": datetime.now().isoformat()
+            "computed_at": datetime.now(timezone.utc).isoformat()
         }
         
         # Cache the stats in Redis
