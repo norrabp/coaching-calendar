@@ -1,6 +1,6 @@
 import React from 'react';
-import { normalizePhone } from '@util/normalize-phone-number';
-import { toTitleCase } from '@util/string-format';
+import { normalizePhone } from '@/util/normalize-phone-number';
+import { toTitleCase } from '@/util/string-format';
 import { UserRole } from '../types/user';
 
 interface IUser {

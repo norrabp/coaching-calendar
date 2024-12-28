@@ -1,6 +1,8 @@
-import { useUser } from "@/context/UserContext";
+'use client';
 
-const StudentHome: React.FC = () => {
+import { useUser } from "@/lib/context/UserContext";
+
+const StudentPage: React.FC = () => {
     const { user } = useUser();
     return (
         <div>
@@ -10,4 +12,4 @@ const StudentHome: React.FC = () => {
     );
 };
 
-export default StudentHome;
+export default StudentPage;

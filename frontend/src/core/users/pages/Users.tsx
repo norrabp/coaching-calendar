@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { User } from '@core/users/types/user';
-import api from '@services/api';
-import StatsCard from '@core/users/components/StatsCard';
-import UserCard from '@core/users/components/UserCard';
+import { User } from '@/core/users/types/user';
+import api from '@/services/api';
+import StatsCard from '@/core/users/components/StatsCard';
+import UserCard from '@/core/users/components/UserCard';
 
 const Users: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);

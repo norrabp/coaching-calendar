@@ -1,7 +1,7 @@
 import React, { useState, FormEvent } from 'react';
-import { User, UserRole } from '@core/users/types/user';
+import { User, UserRole } from '@/core/users/types/user';
 import { useNavigate, Link } from 'react-router-dom';
-import api from '@services/api';
+import api from '@/services/api';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();

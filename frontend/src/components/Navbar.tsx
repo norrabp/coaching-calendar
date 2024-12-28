@@ -1,7 +1,6 @@
 import { useUser } from '@context/UserContext';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import UserInfo from '@components/UserInfo';
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const isAuthenticated = !!localStorage.getItem('token');
@@ -20,7 +19,6 @@ const Navbar: React.FC = () => {
         <div className="navbar-nav ms-auto">
           {isAuthenticated ? (
             <div className="d-flex align-items-center">
-              <UserInfo user={user} />
               <button className="btn btn-outline-light me-3" onClick={handleLogout}>
                 Logout
               </button>
