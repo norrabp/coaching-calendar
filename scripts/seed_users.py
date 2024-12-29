@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+from backend.appointments.constants import AppointmentStatus
 from client import FlaskAPIClient
 
 
@@ -14,6 +16,8 @@ def main():
     client.register("Derrick Henry", "dhenry@gmail.com", "bad_pass", "1234567890", "STUDENT")
     client.register("Reggie Bush", "reggiebush@gmail.com", "bad_pass", "1234567890", "STUDENT")
     client.register("Matt Leinart", "mattleinart@gmail.com", "bad_pass", "1234567890", "STUDENT")
+
+    
 
 
 if __name__ == "__main__":

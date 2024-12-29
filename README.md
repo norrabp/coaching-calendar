@@ -27,7 +27,12 @@ docker-compose up --build
 ```bash
 cd frontend
 npm install
-npx vite
+npm run dev
+```
+
+Optionally you can seed data with a few users by running:
+```bash
+python scripts/seed_users.py
 ```
 
 The application will be available at:
@@ -54,10 +59,16 @@ The application will be available at:
 - Frontend: http://localhost:5000
 - Backend API: http://localhost:8000
 
-## Test User Credentials
+## Test Coach Credentials
 ```
-Email: test@example.com
-Password: TestUser@2024Secure!
+Email: jimharbaugh@gmail.com
+Password: bad_pass
+```
+
+## Test Student Credentials
+```
+Email: jjmccarthy@gmail.com
+Password: bad_pass
 ```
 
 ## Available Features

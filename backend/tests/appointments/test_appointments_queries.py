@@ -2,7 +2,7 @@ from flask.testing import FlaskClient
 import pytest
 import time_machine
 from backend.appointments.constants import AppointmentStatus
-from backend.appointments.queries import get_appointments_for_coach_in_range_query, get_appointments_for_user_query, get_open_appointments_query
+from backend.appointments.queries import get_appointments_for_coach_in_range_query, get_appointments_for_user_query, get_existing_timeslots_by_datetime_query, get_open_appointments_query
 from backend.appointments.models import Appointment
 from backend.auth.constants import UserRole
 from backend.auth.models import User
@@ -64,7 +64,7 @@ def test_get_open_appointments_query(test_coach: User, test_student: User):
     assert not has_more
 
     # Test filtering after specific datetime
-    appointments, has_more = get_open_appointments_query(PaginationInfo(), start_date_inclusive=datetime(2024, 1, 1, 13, 0, 0), coach_id=test_coach.id)
+    appointments, has_more = get_open_appointments_query(PaginationInfo(), start_time_inclusive=datetime(2024, 1, 1, 13, 0, 0), coach_id=test_coach.id)
     appointment_ids = [appt.id for appt in appointments]    
     assert len(appointments) == 2
     assert appointment_1.id not in appointment_ids
@@ -76,7 +76,7 @@ def test_get_open_appointments_query(test_coach: User, test_student: User):
     assert not has_more
 
     # Test filtering after specific datetime before now
-    appointments, has_more = get_open_appointments_query(PaginationInfo(), start_date_inclusive=datetime(2024, 1, 1, 9, 0, 0), coach_id=test_coach.id)
+    appointments, has_more = get_open_appointments_query(PaginationInfo(), start_time_inclusive=datetime(2024, 1, 1, 9, 0, 0), coach_id=test_coach.id)
     appointment_ids = [appt.id for appt in appointments]    
     assert len(appointments) == 4
     assert appointment_1.id in appointment_ids
@@ -162,3 +162,28 @@ def test_get_appointments_for_user_query(client: FlaskClient, test_coach: User, 
     assert appointment_7.id in appointment_ids
     assert appointment_8.id not in appointment_ids
     assert not has_more
+
+def test_get_existing_timeslots_by_datetime_query(test_coach: User, test_student: User):
+    test_coach_2 = UserFactory(role=UserRole.COACH).create()
+
+    appointment_1 = AppointmentFactory(coach_id=test_coach.id, appointment_time=datetime(2024, 1, 1, 9, 0, 0)).create()
+    appointment_2 = AppointmentFactory(coach_id=test_coach.id, appointment_time=datetime(2024, 1, 1, 11, 0, 0)).create()
+    appointment_3 = AppointmentFactory(coach_id=test_coach.id, appointment_time=datetime(2024, 1, 1, 13, 0, 0)).create()
+    appointment_4 = AppointmentFactory(coach_id=test_coach.id, appointment_time=datetime(2024, 1, 2, 13, 0, 0)).create()
+    appointment_5 = AppointmentFactory(coach_id=test_coach.id, appointment_time=datetime(2024, 1, 1, 10, 0, 0)).create()
+    appointment_6 = AppointmentFactory(coach_id=test_coach.id, appointment_time=datetime(2024, 1, 1, 10, 0, 0), status=AppointmentStatus.SCHEDULED, student_id=test_student.id).create()
+    appointment_7 = AppointmentFactory(coach_id=test_coach_2.id, appointment_time=datetime(2024, 1, 1, 15, 0, 0)).create()
+
+    appointments = get_existing_timeslots_by_datetime_query(test_coach, datetime(2024, 1, 1, 10, 0, 0))
+    assert len(appointments) == 4
+    assert appointment_1 not in appointments
+    assert appointment_2 in appointments
+    assert appointment_3 in appointments
+    assert appointment_4 not in appointments
+    assert appointment_5 in appointments
+    assert appointment_6 in appointments
+    assert appointment_7 not in appointments
+
+    appointments = get_existing_timeslots_by_datetime_query(test_coach_2, datetime(2024, 1, 1, 10, 0, 0))
+    assert len(appointments) == 1
+    assert appointment_7 in appointments

@@ -77,6 +77,11 @@ def create_app(config_class=CONFIG):
     # Initialize database
     with app.app_context():
         try:
+            # Run migrations first
+            from flask_migrate import upgrade
+            upgrade(directory='backend/migrations')
+            app.logger.info('Database migrations completed successfully')
+            
             db.create_all()
             if ENVIRONMENT == Environment.DEVELOPMENT:
                 # Create test user if it doesn't exist
@@ -89,6 +94,24 @@ def create_app(config_class=CONFIG):
                     app.logger.info('Root user created successfully')
                 else:
                     app.logger.info('Root user already exists')
+                coach_user = User.query.filter_by(role=UserRole.COACH).first()
+                if not coach_user:
+                    coach_user = User(username='Jim Harbaugh', email='jimharbaugh@gmail.com', phone_number='1234567890', role=UserRole.COACH)
+                    coach_user.set_password('bad_pass')
+                    db.session.add(coach_user)
+                    db.session.commit()
+                    app.logger.info('Coach user created successfully')
+                else:
+                    app.logger.info('Coach user already exists')
+                student_user = User.query.filter_by(role=UserRole.STUDENT).first()
+                if not student_user:
+                    student_user = User(username='JJ McCarthy', email='jjmccarthy@gmail.com', phone_number='1234567890', role=UserRole.STUDENT)
+                    student_user.set_password('bad_pass')
+                    db.session.add(student_user)
+                    db.session.commit()
+                    app.logger.info('Student user created successfully')
+                else:
+                    app.logger.info('Student user already exists')
         except Exception as e:
             app.logger.error(f'Database initialization error: {str(e)}')
             db.session.rollback()  # Rollback on error
@@ -97,10 +120,8 @@ def create_app(config_class=CONFIG):
             app.logger.info('Database tables created')
     
     # Register blueprints
-    from backend.root.routes import api_bp
     from backend.auth.routes import auth_bp
     from backend.appointments.routes import appt_bp
-    app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(appt_bp, url_prefix='/appointments')
     

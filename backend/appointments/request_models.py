@@ -15,7 +15,7 @@ class CreateAppointmentRequest(BaseModel):
 
 class GetOpenAppointmentsRequest(BaseModel):
     coach_id: Optional[str] = None
-    start_date: Optional[datetime] = None
+    start_time: Optional[datetime] = None
     pagination_info: PaginationInfo = PaginationInfo()
     
 class GetMyAppointmentsRequest(BaseModel):
@@ -27,3 +27,7 @@ class UpdateAppointmentRequest(BaseModel):
     status: Modification[AppointmentStatus] = NOT_MODIFIED
     notes: Modification[str] = NOT_MODIFIED
     student_satisfaction: Modification[int] = NOT_MODIFIED
+
+class GetAvailableSlotsRequest(BaseModel):
+    start_time: datetime
+    # TODO: Add end time when allowing locales outside UTC

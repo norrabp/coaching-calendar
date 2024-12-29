@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Dict, Optional
 import requests
 
@@ -47,4 +48,17 @@ class FlaskAPIClient:
     def get_stats(self) -> Dict:
         endpoint = f"{self.base_url}/api/stats"
         response = requests.get(endpoint, headers=self.headers)
+        return response.json()
+    
+    def create_appointment(self, coach_id: str, appointment_time: datetime, student_id: str = None, status: str = "OPEN", notes: str = None, student_satisfaction: int = None) -> Dict:
+        endpoint = f"{self.base_url}/appointments"
+        data = {
+            "coach_id": coach_id,
+            "appointment_time": appointment_time.isoformat(),
+            "status": status,
+            "notes": notes,
+            "student_satisfaction": student_satisfaction,
+            "student_id": student_id
+        }
+        response = requests.post(endpoint, json=data, headers=self.headers)
         return response.json()

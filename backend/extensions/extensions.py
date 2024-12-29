@@ -10,6 +10,8 @@ db = SQLAlchemy()
 jwt = JWTManager()
 cors = CORS()
 
+# IGNORE BELOW: Unused boilerplate
+
 # Initialize Redis
 redis_client = Redis.from_url(CONFIG.REDIS_URL)
 

@@ -8,7 +8,10 @@ def test_register(client):
         'password': 'TestUser@2024Secure!'
     })
     assert response.status_code == 201
-    assert response.json['message'] == 'User created successfully'
+    assert 'user' in response.json
+    assert response.json['user']['username'] == 'newuser'
+    assert response.json['user']['email'] == 'new@example.com'
+    assert response.json['user']['phone_number'] == '1234567890'
 
 def test_register_duplicate_email(client, test_student):
     response = client.post('/auth/register', json={

@@ -25,13 +25,13 @@ def register():
         return jsonify({'error': 'Email already registered'}), 400
         
     try:
-        create_user_query(data.username, data.email, data.phone_number, data.role, data.password)   
+        user = create_user_query(data.username, data.email, data.phone_number, data.role, data.password)   
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-    return jsonify({'message': 'User created successfully'}), 201
+    return jsonify({'user': user.to_dict()}), 201
 
 @auth_bp.route('/login', methods=['POST'])
 def login():

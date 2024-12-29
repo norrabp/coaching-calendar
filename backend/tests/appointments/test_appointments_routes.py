@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 from flask.testing import FlaskClient
 import time_machine
-from backend.appointments.constants import AppointmentStatus
+from backend.appointments.constants import DEFAULT_APPOINTMENT_SLOTS, AppointmentStatus
 from backend.appointments.models import Appointment
 from backend.auth.models import User
 from backend.tests.factories.appointment_factory import AppointmentFactory
@@ -15,7 +15,7 @@ from backend.types.query_opts import PaginationInfo
 
 def test_create_appointment(client: FlaskClient, test_coach: User, coach_auth_headers: dict):
     assert Appointment.query.count() == 0
-    response = client.post('/appointments/', headers=coach_auth_headers, json={
+    response = client.post('/appointments', headers=coach_auth_headers, json={
         'coach_id': test_coach.id,
         'appointment_time': datetime(2024, 1, 1, 11, 0, 0).isoformat(),
         'status': AppointmentStatus.OPEN,
@@ -34,7 +34,7 @@ def test_create_appointment(client: FlaskClient, test_coach: User, coach_auth_he
 
 def test_create_appointment_invalid_time(client: FlaskClient, test_coach: User, coach_auth_headers: dict):
     assert Appointment.query.count() == 0
-    response = client.post('/appointments/', headers=coach_auth_headers, json={
+    response = client.post('/appointments', headers=coach_auth_headers, json={
         'coach_id': test_coach.id,
         'appointment_time': datetime(2024, 1, 1, 11, 0, 0).isoformat(),
         'status': AppointmentStatus.OPEN,
@@ -51,7 +51,7 @@ def test_create_appointment_invalid_time(client: FlaskClient, test_coach: User, 
     assert Appointment.query.first().notes is None
     assert Appointment.query.first().student_satisfaction is None
 
-    response = client.post('/appointments/', headers=coach_auth_headers, json={
+    response = client.post('/appointments', headers=coach_auth_headers, json={
         'coach_id': test_coach.id,
         'appointment_time': datetime(2024, 1, 1, 11, 0, 0).isoformat(),
         'status': AppointmentStatus.OPEN,
@@ -62,7 +62,7 @@ def test_create_appointment_invalid_time(client: FlaskClient, test_coach: User, 
     assert response.status_code == 400
     assert Appointment.query.count() == 1
 
-    response = client.post('/appointments/', headers=coach_auth_headers, json={
+    response = client.post('/appointments', headers=coach_auth_headers, json={
         'coach_id': test_coach.id,
         'appointment_time': datetime(2024, 1, 1, 10, 0, 0).isoformat(),
         'status': AppointmentStatus.OPEN,
@@ -73,7 +73,7 @@ def test_create_appointment_invalid_time(client: FlaskClient, test_coach: User, 
     assert response.status_code == 400
     assert Appointment.query.count() == 1
 
-    response = client.post('/appointments/', headers=coach_auth_headers, json={
+    response = client.post('/appointments', headers=coach_auth_headers, json={
         'coach_id': test_coach.id,
         'appointment_time': datetime(2024, 1, 1, 12, 0, 0).isoformat(),
         'status': AppointmentStatus.OPEN,
@@ -86,7 +86,7 @@ def test_create_appointment_invalid_time(client: FlaskClient, test_coach: User, 
 
 def test_create_appointment_invalid_completion(client: FlaskClient, test_coach: User, coach_auth_headers: dict):
     assert Appointment.query.count() == 0
-    response = client.post('/appointments/', headers=coach_auth_headers, json={
+    response = client.post('/appointments', headers=coach_auth_headers, json={
         'coach_id': test_coach.id,
         'appointment_time': datetime(2024, 1, 1, 11, 0, 0).isoformat(),
         'status': AppointmentStatus.COMPLETED,
@@ -150,7 +150,7 @@ def test_get_open_appointments(client: FlaskClient, test_student: User, test_coa
 
     # Test filtering after specific datetime
     response = client.post('/appointments/open', headers=student_auth_headers, json={
-        'start_date': datetime(2024, 1, 1, 13, 0, 0).replace(tzinfo=timezone.utc).isoformat()
+        'start_time': datetime(2024, 1, 1, 13, 0, 0).replace(tzinfo=timezone.utc).isoformat()
     })
     assert response.status_code == 200
     # assert len(response.json['appointments']) == 3
@@ -343,7 +343,7 @@ def test_get_appointment_by_id(client: FlaskClient, test_student: User, test_coa
 
 def test_update_appointment(client: FlaskClient, test_student: User, test_coach: User, test_root: User, student_auth_headers: dict, coach_auth_headers: dict, root_auth_headers: dict):
     # Create appointment
-    response = client.post('/appointments/', headers=coach_auth_headers, json={
+    response = client.post('/appointments', headers=coach_auth_headers, json={
         'coach_id': test_coach.id,
         'appointment_time': datetime(2024, 1, 1, 9, 0, 0).isoformat(),
         'status': AppointmentStatus.OPEN,
@@ -483,3 +483,88 @@ def test_update_appointment(client: FlaskClient, test_student: User, test_coach:
     assert appointment.student_id == test_student.id
     assert appointment.notes == 'test'
     assert appointment.student_satisfaction == 1
+
+def test_get_available_slots(client: FlaskClient, test_coach: User, test_student: User, coach_auth_headers: dict, student_auth_headers: dict):
+    test_coach_2 = UserFactory(role=UserRole.COACH).create()
+
+    # Test as student
+    response = client.post('/appointments/available-slots', headers=student_auth_headers, json={
+        'start_time': datetime(2024, 1, 1, 9, 0, 0).isoformat(),
+    })
+    assert response.status_code == 403
+    assert response.json == {'error': 'You are not authorized to view available slots'}
+
+    # Test as coach
+    response = client.post('/appointments/available-slots', headers=coach_auth_headers, json={
+        'start_time': datetime(2024, 1, 1, 8, 0, 0).isoformat(),
+    })
+    assert response.status_code == 200
+    assert len(DEFAULT_APPOINTMENT_SLOTS) == len(response.json['slots'])
+    assert all([f"{slot.hour}:{slot.minute:02d}" in response.json['slots'] for slot in DEFAULT_APPOINTMENT_SLOTS])
+
+    # Add some appointments
+
+    # Overlapping
+    appointment_1 = AppointmentFactory(coach_id=test_coach.id, appointment_time=datetime(2024, 1, 1, 9, 0, 0)).create()
+    appointment_2 = AppointmentFactory(coach_id=test_coach.id, appointment_time=datetime(2024, 1, 1, 11, 15, 0)).create()
+    # Next day
+    appointment_4 = AppointmentFactory(coach_id=test_coach.id, appointment_time=datetime(2024, 1, 2, 13, 15, 0)).create()
+    # Different coach
+    appointment_5 = AppointmentFactory(coach_id=test_coach_2.id, appointment_time=datetime(2024, 1, 1, 13, 15, 0)).create()
+
+    response = client.post('/appointments/available-slots', headers=coach_auth_headers, json={
+        'start_time': datetime(2024, 1, 1, 7, 0, 0).isoformat(),
+    })
+    assert response.status_code == 200
+    assert len(response.json['slots']) == 8
+    assert "13:15" in response.json['slots']
+    assert "13:30" in response.json['slots']
+    assert "13:45" in response.json['slots']
+    assert "14:00" in response.json['slots']
+    assert "14:15" in response.json['slots']
+    assert "14:30" in response.json['slots']
+    assert "14:45" in response.json['slots']
+    assert "15:00" in response.json['slots']
+
+    appointment_6 = AppointmentFactory(coach_id=test_coach.id, appointment_time=datetime(2024, 1, 3, 11, 15, 0)).create()
+
+    response = client.post('/appointments/available-slots', headers=coach_auth_headers, json={
+        'start_time': datetime(2024, 1, 3, 7, 0, 0).isoformat(),
+    })
+    assert response.status_code == 200
+    print(response.json['slots'])
+    assert len(response.json['slots']) == 14
+    assert "8:00" in response.json['slots']
+    assert "8:15" in response.json['slots']
+    assert "8:30" in response.json['slots']
+    assert "8:45" in response.json['slots']
+    assert "9:00" in response.json['slots']
+    assert "9:15" in response.json['slots']
+    assert "13:15" in response.json['slots']
+    assert "13:30" in response.json['slots']
+    assert "13:45" in response.json['slots']
+    assert "14:00" in response.json['slots']
+    assert "14:15" in response.json['slots']
+    assert "14:30" in response.json['slots']
+    assert "14:45" in response.json['slots']
+    assert "15:00" in response.json['slots']
+
+    response = client.post('/appointments/available-slots', headers=coach_auth_headers, json={
+        'start_time': datetime(2024, 1, 3, 9, 0, 0).isoformat(),
+    })
+    assert response.status_code == 200
+    assert len(response.json['slots']) == 10
+    assert "9:00" in response.json['slots']
+    assert "9:15" in response.json['slots']
+    assert "13:15" in response.json['slots']
+    assert "13:30" in response.json['slots']
+    assert "13:45" in response.json['slots']
+    assert "14:00" in response.json['slots']
+    assert "14:15" in response.json['slots']
+    assert "14:30" in response.json['slots']
+    assert "14:45" in response.json['slots']
+    assert "15:00" in response.json['slots']
+
+
+
+   
