@@ -1,4 +1,14 @@
-# Flask React Application with PostgreSQL, Redis, and Celery
+# Coaching Schedule
+
+## Future fixes/features
+- Add front end pagination to appointment grids OR
+- Change to a calendar view instead of using grids to display appointments
+- More robust time zone adjustments (All times are stored in UTC, and currently all client datetimes are treated as UTC datetimes
+- More detailed exceptions on the server (currently all are just ValueError's returning 400 codes)
+- Allow student or coach to cancel appointment (Student it becomes open again, coach the slot gets soft deleted
+- Default filter soft deleted appointments
+- Add better front end support for filtering and sorting appointments
+- More robust linting
 
 ## Running with Docker Compose (Recommended)
 
@@ -30,7 +40,7 @@ npm install
 npm run dev
 ```
 
-Optionally you can seed data with a few users by running:
+Optionally you can seed data with a few users by running (need to have a running:
 ```bash
 python scripts/seed_users.py
 ```
@@ -65,18 +75,15 @@ Email: jimharbaugh@gmail.com
 Password: bad_pass
 ```
 
+Others can be found in the seed_users.py file
+
 ## Test Student Credentials
 ```
 Email: jjmccarthy@gmail.com
 Password: bad_pass
 ```
 
-## Available Features
-- User Authentication (Login/Register)
-- Real-time Statistics Dashboard
-- User Management
-- Background Task Processing with Celery
-- Redis Caching
+Others can be found in the seed_users.py file
 
 ## Development
 - Frontend code is in the `frontend` directory
@@ -98,6 +105,10 @@ docker-compose logs -f [service_name]
 ```bash
 docker-compose down
 ```
+To clear the database run
+```bash
+docker-compose down -v
+```
 
 ### Access PostgreSQL
 ```bash
@@ -108,3 +119,4 @@ docker-compose exec db psql -U postgres -d flask_app
 ```bash
 docker-compose exec redis redis-cli
 ```
+
