@@ -1,9 +1,9 @@
-from pydantic import BaseModel
-from typing import Any, Mapping, Literal, Optional
+from typing import Any, Literal, Mapping, Optional
 
+from pydantic import BaseModel
 
 FilterInfo = Mapping[str, Any]
-SortInfo = Mapping[str, Literal['asc', 'desc']]
+SortInfo = Mapping[str, Literal["asc", "desc"]]
 
 
 class PaginationInfo(BaseModel):

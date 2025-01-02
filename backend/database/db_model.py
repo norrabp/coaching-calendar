@@ -1,19 +1,25 @@
-from sqlalchemy.dialects.postgresql import UUID
-from backend.extensions.extensions import db
-from backend.util.pagination import get_pagination
-from typing import List, Optional
-from backend.types.query_opts import FilterInfo, SortInfo, PaginationInfo
-from datetime import datetime, timezone
-from sqlalchemy.orm import Query
 import uuid
+from datetime import datetime, timezone
+from typing import List, Optional
+
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Query
+
+from backend.extensions.extensions import db
+from backend.types.query_opts import FilterInfo, PaginationInfo, SortInfo
+from backend.util.pagination import get_pagination
 
 
 class Model(db.Model):
     __abstract__ = True
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
-    updated_at = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
+    created_at = db.Column(
+        db.DateTime, default=datetime.now(timezone.utc), nullable=False
+    )
+    updated_at = db.Column(
+        db.DateTime, default=datetime.now(timezone.utc), nullable=False
+    )
     deleted_at = db.Column(db.DateTime, nullable=True)
 
     def delete(self, hard_delete: bool = False):
@@ -30,42 +36,43 @@ class Model(db.Model):
         if commit:
             db.session.commit()
         return self
-    
+
     def update(self, commit: bool = True):
         self.updated_at = datetime.now(timezone.utc)
         if commit:
             db.session.commit()
         return self
-    
+
     @classmethod
     def get_list(
         cls,
         filter: Optional[FilterInfo] = None,
         sort: Optional[SortInfo] = None,
         pagination: Optional[PaginationInfo] = None,
-        with_deleted: bool = False
-    ) -> List['Model']:
+        with_deleted: bool = False,
+    ) -> List["Model"]:
         query = cls.get_list_query_obj(filter, sort, with_deleted)
         return query.all()
-    
+
     @classmethod
     def get_list_and_paginate(
         cls,
         filter: Optional[FilterInfo] = None,
         sort: Optional[SortInfo] = None,
         pagination: Optional[PaginationInfo] = None,
-        with_deleted: bool = False
-    ) -> tuple[List['Model'], bool]:
-        query, has_next_page = cls.get_list_and_paginate_query_obj(filter, sort, pagination, with_deleted)
+        with_deleted: bool = False,
+    ) -> tuple[List["Model"], bool]:
+        query, has_next_page = cls.get_list_and_paginate_query_obj(
+            filter, sort, pagination, with_deleted
+        )
         return query.all(), has_next_page
 
-    
     @classmethod
     def get_list_query_obj(
         cls,
         filter: Optional[FilterInfo] = None,
         sort: Optional[SortInfo] = None,
-        with_deleted: bool = False
+        with_deleted: bool = False,
     ) -> Query:
         query = cls.query
         if not with_deleted:
@@ -76,13 +83,13 @@ class Model(db.Model):
                     # Handle operators like $gte, $lt, etc.
                     for op, op_value in value.items():
                         column = getattr(cls, key)
-                        if op == '$gte':
+                        if op == "$gte":
                             query = query.filter(column >= op_value)
-                        elif op == '$gt':
+                        elif op == "$gt":
                             query = query.filter(column > op_value)
-                        elif op == '$lt':
+                        elif op == "$lt":
                             query = query.filter(column < op_value)
-                        elif op == '$lte':
+                        elif op == "$lte":
                             query = query.filter(column <= op_value)
                 else:
                     # Handle simple equality
@@ -91,7 +98,7 @@ class Model(db.Model):
             for column, direction in sort.items():
                 column_attr = getattr(cls, column)
                 query = query.order_by(
-                    column_attr.desc() if direction == 'desc' else column_attr.asc()
+                    column_attr.desc() if direction == "desc" else column_attr.asc()
                 )
         return query
 
@@ -101,7 +108,7 @@ class Model(db.Model):
         filter: Optional[FilterInfo] = None,
         sort: Optional[SortInfo] = None,
         pagination: Optional[PaginationInfo] = None,
-        with_deleted: bool = False
+        with_deleted: bool = False,
     ) -> tuple[Query, bool]:
         pagination = get_pagination(pagination)
         query = cls.get_list_query_obj(filter, sort, with_deleted)
@@ -114,14 +121,14 @@ class Model(db.Model):
         return query, total_count > (
             pagination.page_size * pagination.page + pagination.offset
         )
-    
+
     @classmethod
     def get_or_create(cls, filter: Optional[FilterInfo] = None, commit: bool = True):
         obj = cls.query.filter_by(**filter).first()
         if not obj:
             obj = cls.create(commit)
         return obj
-    
+
     @classmethod
     def update_or_create(cls, filter: Optional[FilterInfo] = None, commit: bool = True):
         obj = cls.query.filter_by(**filter).first()
@@ -130,4 +137,3 @@ class Model(db.Model):
         else:
             obj = cls.update(commit)
         return
-    

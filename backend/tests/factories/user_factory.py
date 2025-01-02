@@ -1,7 +1,8 @@
 import factory
 from factory.faker import Faker
-from backend.auth.models import User
+
 from backend.auth.constants import UserRole
+from backend.auth.models import User
 from backend.extensions.extensions import db
 
 
@@ -13,17 +14,17 @@ class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     username = factory.Sequence(lambda n: f"user_{n}")
     email = factory.Sequence(lambda n: f"user_{n}@example.com")
-    phone_number = Faker('numerify', text='###-###-####')
+    phone_number = Faker("numerify", text="###-###-####")
     role = UserRole.STUDENT
-    password = 'password123'  # Add default password as a class attribute
+    password = "password123"  # Add default password as a class attribute
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         """Override _create to handle password setting before commit"""
         # Make sure password is included in kwargs
-        if 'password' not in kwargs:
-            kwargs['password'] = cls.password
-            
+        if "password" not in kwargs:
+            kwargs["password"] = cls.password
+
         # Create instance with password
         obj = super()._create(model_class, *args, **kwargs)
         return obj

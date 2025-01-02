@@ -1,11 +1,13 @@
-from enum import Enum
 from datetime import time
+from enum import Enum
+
 
 class AppointmentStatus(str, Enum):
-    OPEN = 'OPEN'
-    SCHEDULED = 'SCHEDULED'
-    COMPLETED = 'COMPLETED'
-    CANCELLED = 'CANCELLED'
+    OPEN = "OPEN"
+    SCHEDULED = "SCHEDULED"
+    COMPLETED = "COMPLETED"
+    CANCELLED = "CANCELLED"
+
 
 # Time slots between 8am and 5pm
 DEFAULT_APPOINTMENT_SLOTS = [
